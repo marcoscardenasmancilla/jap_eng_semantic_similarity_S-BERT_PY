@@ -14,9 +14,10 @@
 # 
 # Características:
 # 1. importa de datos de una matriz de fichas analíticas en formato .csv, combinando las columnas de "Proceso Verbal" con otras para crear textos conjuntos en JP-EN.
-# 2. implementa el modelo de Sentence-BERT, 'paraphrase-multilingual-MiniLM-L12-v2', para generar embeddings y calcular la similitud coseno 
-# entre las representaciones vectoriales de cada par. 
-# 3. categoriza las similitudes obtenidas (alta, moderada, baja).
+# 2. implementa el modelo de Sentence-BERT, 'paraphrase-multilingual-MiniLM-L12-v2', para generar embeddings y calcular la similitud coseno entre 
+# las representaciones vectoriales de cada par. 
+# 3. categoriza las similitudes obtenidas: Baja Similitud (0,0 – 0,5), Similitud Moderada (0,5 – 0,8) y Alta Similitud (0,8 – 1,0). 
+# Los resultados se evalúan mediante análisis descriptivos e inferenciales como la prueba de Kruskal-Wallis.
 # 4. aplica pruebas estadísticas (Shapiro-Wilk y Kruskal-Wallis) para analizar la distribución y diferencias significativas entre estas categorías.
 # 5. exporta los resultados a archivos .csv.
 # 
@@ -138,10 +139,7 @@ if all(procesos_limpios['Similitud Semántica'] == 1.0):
 else:
     print("Existen similitudes semánticas por debajo de 1.0; se recomienda revisión adicional.")
 
-# Cargar el modelo Sentence-BERT
-model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
-
-# Cargar los textos
+# Paso 10: Cargar como input el resultados del Paso 6.
 file_path = r'procesos_verbales_similitud_final.csv'  # Cambiar por la ruta correcta
 procesos_completados = pd.read_csv(file_path)
 
@@ -154,10 +152,10 @@ def calcular_similitud(row):
     except Exception as e:
         return None
 
-# Aplicar la función de similitud
+# Paso 11: Aplicar la función de similitud
 procesos_completados['Similitud Semántica (BERT)'] = procesos_completados.apply(calcular_similitud, axis=1)
 
-# Clasificar según similitudes calculadas
+# Paso 12: Clasificar según similitudes calculadas
 procesos_completados['Clasificación Morfosintáctica (BERT)'] = pd.cut(
     procesos_completados['Similitud Semántica (BERT)'],
     bins=[0, 0.5, 0.8, 1.0],
@@ -165,24 +163,24 @@ procesos_completados['Clasificación Morfosintáctica (BERT)'] = pd.cut(
     include_lowest=True
 )
 
-# Exportar los resultados ajustados
+# Paso 13: Exportar los resultados ajustados
 output_file_bert = r'procesos_verbales_similitud_bert.csv'
 procesos_completados.to_csv(output_file_bert, index=False)
 
 print(f"Resultados ajustados con Sentence-BERT exportados a: {output_file_bert}")
 
-# Agrupar datos por categoría
+# Paso 14: Agrupar datos por categoría
 baja_similitud = procesos_completados[procesos_completados['Clasificación Morfosintáctica (BERT)'] == 'Baja Similitud']['Similitud Semántica (BERT)']
 moderada_similitud = procesos_completados[procesos_completados['Clasificación Morfosintáctica (BERT)'] == 'Similitud Moderada']['Similitud Semántica (BERT)']
 alta_similitud = procesos_completados[procesos_completados['Clasificación Morfosintáctica (BERT)'] == 'Alta Similitud']['Similitud Semántica (BERT)']
 
-# Verificar la normalidad de los datos
+# Paso 15: Verificar la normalidad de los datos
 print("Prueba de normalidad (Shapiro-Wilk):")
 print(f"Baja Similitud: {shapiro(baja_similitud)}")
 print(f"Similitud Moderada: {shapiro(moderada_similitud)}")
 print(f"Alta Similitud: {shapiro(alta_similitud)}")
 
-# Aplicar la prueba de Kruskal-Wallis
+# Paso 16: Aplicar la prueba de Kruskal-Wallis
 result = kruskal(baja_similitud, moderada_similitud, alta_similitud)
 
 print(f"Estadístico de Prueba: {result.statistic}, Valor p: {result.pvalue}")
