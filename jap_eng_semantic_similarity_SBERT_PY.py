@@ -22,7 +22,7 @@
 # 5. exporta los resultados a archivos .csv.
 # 
 # El objetivo principal es evaluar,  a través del cáculo de la similitud semántica, la calidad del análisis comparativo de las estructuras argumentales y 
-# morfosintácticas del japonés e inglés. Un alto puntaje de similitud indica que la traducción al inglés mantiene el significado del original, 
+# morfosintácticas del japonés e inglés de cada ficha analítica. Un alto puntaje de similitud indica que la traducción al inglés mantiene el significado del original, 
 # mientras que un puntaje bajo puede señalar problemas en la comparación o diferencias gramaticales que impactan el significado.
 
 # ==================================================================================================================================================================
