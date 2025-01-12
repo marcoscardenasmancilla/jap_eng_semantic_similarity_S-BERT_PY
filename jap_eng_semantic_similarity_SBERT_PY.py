@@ -139,7 +139,7 @@ if all(procesos_limpios['Similitud Semántica'] == 1.0):
 else:
     print("Existen similitudes semánticas por debajo de 1.0; se recomienda revisión adicional.")
 
-# Paso 10: Cargar como input el resultados del Paso 6.
+# Paso 10: Cargar como input el resultado de la ejecución del Paso 6.
 file_path = r'procesos_verbales_similitud_final.csv'  # Cambiar por la ruta correcta
 procesos_completados = pd.read_csv(file_path)
 
