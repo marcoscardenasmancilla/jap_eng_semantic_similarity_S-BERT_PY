@@ -1,7 +1,7 @@
 # ==================================================================================================================================================================
 
 # Author                    : Dr. Marcos H. Cárdenas Mancilla
-# E-mail                    : marcos.cardenas.m@usach.cl
+# E-mail                    : marcoscardenasmancilla@gmail.com
 # Date of creation          : 2025-01-11
 # Licence                   : AGPL V3
 # Copyright (c) 2025 Marcos H. Cárdenas Mancilla.
