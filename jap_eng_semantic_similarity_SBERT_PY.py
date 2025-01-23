@@ -10,7 +10,7 @@
 
 # Descripción JAP_ENG_SEMANTIC_SIMILARITY_SBERT_PY:
 # Este código Python analiza la similitud semántica entre pares de textos en japonés e inglés para validar los resultados del análisis comparativo de la estructura 
-# argumental de ambas lenguas.
+# argumental y morfosintáctica de ambas lenguas.
 # 
 # Características:
 # 1. importa de datos de una matriz de fichas analíticas en formato .csv, combinando las columnas de "Proceso Verbal" con otras para crear textos conjuntos en JP-EN.
