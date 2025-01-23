@@ -37,28 +37,29 @@ from scipy.stats import kruskal, shapiro
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-# Cargar y limpiar la base de datos
+## Preprocesamiento de datos ##
+# 1. Cargar y limpiar la base de datos
 file_path = r'matriz_fichas_analíticas.csv'  # Cambiar por la ruta correcta
 matriz_fichas = pd.read_csv(file_path, delimiter=';')
 
-# Seleccionar y renombrar columnas relevantes
+# 2. Seleccionar y renombrar columnas relevantes
 matriz_fichas_renombrada = matriz_fichas.rename(columns={
     'Unnamed: 2': 'Proceso Verbal',
     'Unnamed: 4': 'Argumento Asociado',
     '[a]': 'Identificador Principal'
 })
 
-# Filtrar columnas útiles y eliminar valores nulos
+# 3. Filtrar columnas útiles y eliminar valores nulos
 datos_relevantes = matriz_fichas_renombrada[['Identificador Principal', 'Proceso Verbal', 'Argumento Asociado']].dropna()
 
 # Crear texto combinado para japonés e inglés
 datos_relevantes['Texto Japonés'] = datos_relevantes['Proceso Verbal'] + " " + datos_relevantes['Argumento Asociado']
 datos_relevantes['Texto Inglés'] = datos_relevantes['Proceso Verbal'] + " " + datos_relevantes['Argumento Asociado']
 
-# Cargar el modelo multilingüe preentrenado de Sentence-BERT
+# 4. Cargar el modelo multilingüe preentrenado de Sentence-BERT
 model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
 
-# Función para calcular similitud semántica
+# 5. Definir función para calcular similitud semántica
 def calcular_similitud_sbert(row):
     try:
         jap_embedding = model.encode(row['Texto Japonés'], convert_to_tensor=True)
@@ -67,83 +68,84 @@ def calcular_similitud_sbert(row):
     except Exception:
         return None
 
-# Aplicar el cálculo de similitud
+# 6. Aplicar el cálculo de similitud
 datos_relevantes['Similitud Semántica'] = datos_relevantes.apply(calcular_similitud_sbert, axis=1)
 
-# Exportar los resultados a un archivo CSV
+# 7. Exportar los resultados a un archivo CSV
 datos_relevantes.to_csv(r'comparaciones_jap_ingles_sbert.csv', index=False)
 
-# Mostrar los resultados
+# 8. Mostrar los resultados
 print("Resultados de Similitud Semántica:")
 print(datos_relevantes[['Identificador Principal', 'Similitud Semántica']].head())
 
-# Cargar el archivo inicial
+# 9. Cargar base de datos con estructura argumental en japonés e inglés
 file_path = r'df_filtered.csv'  # Cambiar por la ruta correcta
 df_filtered = pd.read_csv(file_path)
 
-# Paso 1: Archivo Cargado - Resumen
+## Cálculo de similitud semántica ##
+# 1. Verificar carga correcta de datos con estructura argumental
 print("Archivo cargado: Resumen")
 print(df_filtered.head())
 
-# Paso 2: Validación de Traducciones Jap-Eng
-print("\nValidación de Traducciones Jap-Eng")
+# 2. Validar pares de textos de canciones jap-eng
+print("\nValidación de pares de textos japonés-inglés")
 subconjunto_validacion = df_filtered[['jap', 'eng']].sample(n=5, random_state=42)
 print(subconjunto_validacion)
 
-# Paso 3: Comparación Con Similitudes Semánticas
+# 3. Comparar similitudes semánticas
 df_filtered['Texto Japonés'] = df_filtered['jap'] + " " + df_filtered['subj'].fillna('') + " " + df_filtered['obj'].fillna('')
 df_filtered['Texto Inglés'] = df_filtered['eng'] + " " + df_filtered['subj'].fillna('') + " " + df_filtered['obj'].fillna('')
 
-# Calcular similitudes semánticas usando TF-IDF
+# 4. Calcular similitudes semánticas usando TF-IDF
 vectorizer = TfidfVectorizer()
 tfidf_matrix = vectorizer.fit_transform(df_filtered['Texto Japonés'] + df_filtered['Texto Inglés'])
 similitudes = cosine_similarity(tfidf_matrix[:len(df_filtered)])
 
-# Asignar las similitudes calculadas al DataFrame
+# 5. Asignar las similitudes calculadas al DataFrame
 df_filtered['Similitud Semántica'] = [similitudes[i, i] for i in range(len(similitudes))]
 
-# Paso 4: Validación de Traducciones y Similitudes
+# 6. Validar pares de textos y similitudes
 subconjunto_similitudes = df_filtered[['Texto Japonés', 'Texto Inglés', 'Similitud Semántica']].sample(n=5, random_state=42)
 print("\nValidación de Traducciones y Similitudes")
 print(subconjunto_similitudes)
 
-# Paso 5: Procesos Verbales Limpios
+# 7. Filtrar procesos verbales limpios
 procesos_limpios = df_filtered.dropna(subset=['Texto Japonés', 'Texto Inglés'])
 
-# Paso 6: Resultados Finales Con Filas Completas
+# 8. Actualizar resultados con filas completas
 vectorizer_final = TfidfVectorizer()
 tfidf_matrix_final = vectorizer_final.fit_transform(procesos_limpios['Texto Japonés'] + " " + procesos_limpios['Texto Inglés'])
 similitudes_final = cosine_similarity(tfidf_matrix_final[:len(procesos_limpios)])
 procesos_limpios['Similitud Semántica'] = [similitudes_final[i, i] for i in range(len(similitudes_final))]
 
-# Exportar resultados finales
+# 9. Exportar resultados finales
 output_file_final = r'procesos_verbales_similitud_final.csv'
 procesos_limpios.to_csv(output_file_final, index=False)
 
-# Paso 7: Distribución Final De Similitudes Semánticas
+# 10. Imprimir distribución final de similitudes semánticas
 plt.hist(procesos_limpios['Similitud Semántica'], bins=10, edgecolor='k')
 plt.title('Distribución Final de Similitudes Semánticas')
 plt.xlabel('Similitud Semántica')
 plt.ylabel('Frecuencia')
 plt.show()
 
-# Paso 8: Revisión Final De Resultados
-print("\nRevisión Final de Resultados")
+# 11. Revisar resultados finales
+print("\nRevisión de Resultados Finales")
 subconjunto_final = procesos_limpios[['Texto Japonés', 'Texto Inglés', 'Similitud Semántica']].sample(n=5, random_state=42)
 print(subconjunto_final)
 
-# Paso 9: Validación Final de los Resultados
+# 12. Validar resultados finales
 print("\nValidación Final de los Resultados")
 if all(procesos_limpios['Similitud Semántica'] == 1.0):
     print("Todas las similitudes semánticas reflejan correspondencia perfecta.")
 else:
     print("Existen similitudes semánticas por debajo de 1.0; se recomienda revisión adicional.")
 
-# Paso 10: Cargar como input el resultado de la ejecución del Paso 6.
+# 13. Cargar como input el resultado de la ejecución del Paso 9.
 file_path = r'procesos_verbales_similitud_final.csv'  # Cambiar por la ruta correcta
 procesos_completados = pd.read_csv(file_path)
 
-# Generar embeddings y calcular similitudes
+# 14. Generar incrustamientos y calcular similitudes
 def calcular_similitud(row):
     try:
         jap_embedding = model.encode(row['Texto Japonés'], convert_to_tensor=False)
@@ -152,10 +154,10 @@ def calcular_similitud(row):
     except Exception as e:
         return None
 
-# Paso 11: Aplicar la función de similitud
+# 15. Aplicar la función de similitud para casos completos
 procesos_completados['Similitud Semántica (BERT)'] = procesos_completados.apply(calcular_similitud, axis=1)
 
-# Paso 12: Clasificar según similitudes calculadas
+# 16. Clasificar según similitudes calculadas (Clasificación Morfosintáctica (BERT))
 procesos_completados['Clasificación Morfosintáctica (BERT)'] = pd.cut(
     procesos_completados['Similitud Semántica (BERT)'],
     bins=[0, 0.5, 0.8, 1.0],
@@ -163,24 +165,24 @@ procesos_completados['Clasificación Morfosintáctica (BERT)'] = pd.cut(
     include_lowest=True
 )
 
-# Paso 13: Exportar los resultados ajustados
+# 17. Exportar los resultados ajustados
 output_file_bert = r'procesos_verbales_similitud_bert.csv'
 procesos_completados.to_csv(output_file_bert, index=False)
 
 print(f"Resultados ajustados con Sentence-BERT exportados a: {output_file_bert}")
 
-# Paso 14: Agrupar datos por categoría
+# 18. Agrupar datos según clasificación morfosintáctica
 baja_similitud = procesos_completados[procesos_completados['Clasificación Morfosintáctica (BERT)'] == 'Baja Similitud']['Similitud Semántica (BERT)']
 moderada_similitud = procesos_completados[procesos_completados['Clasificación Morfosintáctica (BERT)'] == 'Similitud Moderada']['Similitud Semántica (BERT)']
 alta_similitud = procesos_completados[procesos_completados['Clasificación Morfosintáctica (BERT)'] == 'Alta Similitud']['Similitud Semántica (BERT)']
 
-# Paso 15: Verificar la normalidad de los datos
+# 19. Verificar normalidad de los datos continuos
 print("Prueba de normalidad (Shapiro-Wilk):")
 print(f"Baja Similitud: {shapiro(baja_similitud)}")
 print(f"Similitud Moderada: {shapiro(moderada_similitud)}")
 print(f"Alta Similitud: {shapiro(alta_similitud)}")
 
-# Paso 16: Aplicar la prueba de Kruskal-Wallis
+# 20 Aplicar prueba de Kruskal-Wallis
 result = kruskal(baja_similitud, moderada_similitud, alta_similitud)
 
 print(f"Estadístico de Prueba: {result.statistic}, Valor p: {result.pvalue}")
