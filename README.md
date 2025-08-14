@@ -17,9 +17,3 @@
 # 5. exporta los resultados a archivos .csv.
 
 # El objetivo principal es evaluar,  a través del cálculo de la similitud semántica, la calidad del análisis comparativo de las estructuras argumentales y  morfosintácticas del japonés e inglés. Un alto puntaje de similitud indica que la traducción al inglés mantiene el significado del original, mientras que un puntaje bajo puede señalar problemas en la comparación o diferencias gramaticales que impactan el significado.
-
-# Referencias:
-- Devlin, J., Chang, M.-W., Lee, K., & Toutanova, K. (2019). BERT: Pre-training of deep bidirectional transformers for language understanding. Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, 1, 4171-4186. https://doi.org/10.18653/v1/N19-1423
-- Goldberg, A. (2010). Construction Grammar. WIREs Cognitive Science, 1(4), 468-477. https://doi.org/10.1002/wcs.44
-- Lai, K., Xing, C., & Ren, Z. (2021). Nonparametric methods in multilingual semantic evaluation. Journal of Machine Learning Research, 22(1), 1-25.
-- Reimers, N., & Gurevych, I. (2019). Sentence-BERT: Sentence embeddings using Siamese BERT-networks. Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing, 3982-3992. https://doi.org/10.18653/v1/D19-1410
